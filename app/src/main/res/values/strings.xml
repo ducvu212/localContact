@@ -9,5 +9,5 @@
     <string name="favorite">Favorite</string>
     <string name="name">Name</string>
     <string name="bias_tv_sdt">0.4</string>
-    <string name="bias_tv_name">0.1</string>
+    <string name="bias_tv_name">0.3</string>
 </resources>
