@@ -1,4 +1,4 @@
-package com.example.ducvu212.localcontact;
+package com.example.ducvu212.localcontact.data.source.local;
 
 public class DatabaseConstants {
 
@@ -25,5 +25,8 @@ public class DatabaseConstants {
             + " integer)";
     public static final String DROP_TABLE = "DROP TABLE IF NOT EXITS " + DATABASE_TABLE_NAME;
     public static final String QUERY_ALL_RECODRD = "SELECT * FROM " + DATABASE_TABLE_NAME;
-    public static final String CHECK_TABLE = "SELECT DISTINCT tbl_name from sqlite_master where tbl_name = '" + DATABASE_TABLE_NAME + "'";
+    public static final String CHECK_TABLE =
+            "SELECT DISTINCT tbl_name from sqlite_master where tbl_name = '"
+                    + DATABASE_TABLE_NAME
+                    + "'";
 }

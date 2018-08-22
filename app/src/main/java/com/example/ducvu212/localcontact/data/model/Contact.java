@@ -1,7 +1,6 @@
-package com.example.ducvu212.localcontact;
+package com.example.ducvu212.localcontact.data.model;
 
 public class Contact {
-
     private String mName;
     private String mPhone;
     private String mPhoto;
@@ -14,16 +13,15 @@ public class Contact {
         mFavorite = favorite;
     }
 
+    public Contact() {
+    }
+
     public int getFavorite() {
         return mFavorite;
     }
 
     public void setFavorite(int favorite) {
         mFavorite = favorite;
-    }
-
-    public Contact() {
-
     }
 
     public String getName() {

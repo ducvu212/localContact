@@ -1,13 +1,10 @@
-package com.example.ducvu212.localcontact;
+package com.example.ducvu212.localcontact.screens.contact;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
@@ -22,19 +19,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import com.example.ducvu212.localcontact.data.model.Contact;
+import com.example.ducvu212.localcontact.data.source.ContactDataSource;
+import com.example.ducvu212.localcontact.data.source.local.ContactListAction;
+import com.example.ducvu212.localcontact.data.source.local.DatabaseHelper;
+import com.example.ducvu212.localcontact.R;
+import com.example.ducvu212.localcontact.screens.contact.adapter.ContactAdapter;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ContactFragment extends Fragment implements ContactListAction {
+public class ContactFragment extends Fragment implements ContactAdapter.OnClickListener {
+    /**
+     * Request read contact permission
+     */
+    private static final int INIT_PERMISSION = 111;
 
-    private ArrayList<Contact> mContactArrayList;
+    private List<Contact> mContacts;
     private SearchView mSearchView;
     private SearchView.SearchAutoComplete mSearchAutoComplete;
     private RecyclerView mRecyclerViewContact;
-    private DatabaseHelper mDatabaseHelper;
-    private static final int INIT_PERMISSION = 111;
+    private ContactDataSource mContactDataSource;
 
     public ContactFragment() {
         // Required empty public constructor
@@ -64,76 +71,30 @@ public class ContactFragment extends Fragment implements ContactListAction {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         checkPermissions(getContext());
-        findViewByIds(getActivity());
-        initComponents();
+        findViews(getActivity());
+        updateContact();
     }
 
-    private void findViewByIds(FragmentActivity activity) {
+    private void findViews(FragmentActivity activity) {
         mSearchView = activity.findViewById(R.id.search_view);
         mSearchAutoComplete =
                 mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
         mRecyclerViewContact = activity.findViewById(R.id.recycle_contact);
-    }
-
-    private void initComponents() {
         mSearchView.setIconified(false);
         mSearchView.setIconifiedByDefault(false);
         mSearchAutoComplete.setHintTextColor(getResources().getColor(R.color.hint_text_color));
         mSearchAutoComplete.setTextColor(getResources().getColor(R.color.text_search_color));
-        mContactArrayList = new ArrayList<>();
-        mDatabaseHelper = new DatabaseHelper(getContext());
-        if (mDatabaseHelper.isTableExists(true)
-                && mDatabaseHelper.getAllContactDatabase().size() > 0) {
-            mContactArrayList = mDatabaseHelper.getAllContactDatabase();
-        } else {
-            getAllContact();
-            mContactArrayList = mDatabaseHelper.getAllContactDatabase();
-        }
-        ContactAdapter adapter = new ContactAdapter(this, getContext(), mDatabaseHelper);
+    }
+
+    private void updateContact() {
+        List<Contact> contacts = mContactDataSource.getContacts();
+        updateRecyclerContact(contacts);
+    }
+
+    private void updateRecyclerContact(List<Contact> contacts) {
+        ContactAdapter adapter = new ContactAdapter(contacts, this);
         mRecyclerViewContact.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerViewContact.setAdapter(adapter);
-    }
-
-    private void getAllContact() {
-        ContentResolver resolver = getContext().getContentResolver();
-        String sort = ContactsContract.Contacts.DISPLAY_NAME;
-        Cursor cursor =
-                resolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, sort);
-        if (cursor.moveToFirst()) {
-            do {
-                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-
-                if (Integer.parseInt(cursor.getString(
-                        cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                    Cursor pCursor =
-                            resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
-                                    new String[] { id }, sort);
-                    do {
-                        String name = pCursor.getString(pCursor.getColumnIndex(
-                                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                        String number = pCursor.getString(pCursor.getColumnIndex(
-                                ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        String photo = pCursor.getString(
-                                pCursor.getColumnIndex(ContactsContract.Contacts.PHOTO_URI));
-                        mDatabaseHelper.addContact(name, number, photo, 0);
-                        break;
-                    } while (pCursor.moveToNext());
-                    pCursor.close();
-                }
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-    }
-
-    @Override
-    public Contact getItem(int position) {
-        return mContactArrayList.get(position);
-    }
-
-    @Override
-    public int getCount() {
-        return mContactArrayList == null ? 0 : mContactArrayList.size();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
@@ -146,5 +107,27 @@ public class ContactFragment extends Fragment implements ContactListAction {
                     Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS
             }, INIT_PERMISSION);
         }
+    }
+
+    @Override
+    public void onUpdateFavoriteClick(View view, Contact contact) {
+        int fav = contact.getFavorite();
+        fav = fav == 0 ? 1 : 0;
+        contact.setFavorite(fav);
+        if (mContactDataSource.updateContact(contact)){
+            // TODO: 18/08/03
+        }else {
+            // TODO: 18/08/03
+        }
+    }
+
+    @Override
+    public void onCallClick(View view, Contact contact) {
+        // TODO: 18/08/03
+    }
+
+    @Override
+    public void onSmsClick(View view, Contact contact) {
+        // TODO: 18/08/03
     }
 }

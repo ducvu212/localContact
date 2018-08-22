@@ -1,10 +1,11 @@
-package com.example.ducvu212.localcontact;
+package com.example.ducvu212.localcontact.data.source.local;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import com.example.ducvu212.localcontact.data.model.Contact;
 import java.util.ArrayList;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -24,15 +25,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public void addContact(String name, String sdt, String photo, int fav) {
+    public boolean addContact(Contact contact) {
+        if (contact == null) {
+            return false;
+        }
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(DatabaseConstants.NAME, name);
-        values.put(DatabaseConstants.PHONE_NUMBER, sdt);
-        values.put(DatabaseConstants.PHOTO, photo);
-        values.put(DatabaseConstants.FAVORITE, fav);
+        values.put(DatabaseConstants.NAME, contact.getName());
+        values.put(DatabaseConstants.PHONE_NUMBER, contact.getPhone());
+        values.put(DatabaseConstants.PHOTO, contact.getPhoto());
+        values.put(DatabaseConstants.FAVORITE, contact.getFavorite());
         db.insert(DatabaseConstants.DATABASE_TABLE_NAME, null, values);
         db.close();
+        return true;
     }
 
     public ArrayList<Contact> getAllContactDatabase() {
@@ -40,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(DatabaseConstants.QUERY_ALL_RECODRD, null);
         cursor.moveToFirst();
-        if(cursor.getCount() > 0) {
+        if (cursor.getCount() > 0) {
             do {
                 String name = cursor.getString(1);
                 String sdt = cursor.getString(2);
@@ -67,8 +72,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
 
-        Cursor cursor = db.rawQuery(DatabaseConstants.CHECK_TABLE,
-                null);
+        Cursor cursor = db.rawQuery(DatabaseConstants.CHECK_TABLE, null);
         if (cursor != null) {
             if (cursor.getCount() > 0) {
                 cursor.close();
