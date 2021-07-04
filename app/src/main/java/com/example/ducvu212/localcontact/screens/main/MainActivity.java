@@ -1,9 +1,11 @@
-package com.example.ducvu212.localcontact;
+package com.example.ducvu212.localcontact.screens.main;
 
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import com.example.ducvu212.localcontact.R;
+import com.example.ducvu212.localcontact.screens.contact.ContactFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,11 +23,5 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.add(R.id.frame_main_layout, ContactFragment.newInstance(), TRANSACTION_ADD_TAG);
         transaction.commit();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
     }
 }
